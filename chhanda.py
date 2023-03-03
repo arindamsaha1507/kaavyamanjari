@@ -1,21 +1,49 @@
-class Chhanda:
+import sys
+import varnakaarya as vk
+
+sys.stdout = open('logger.txt', 'w')
+
+class Anuchchheda:
 
     def __init__(self, index, lines):
-
         self.id = index
         self.raw = lines
 
-        assert len(self.raw) in [2, 4]
         assert isinstance(self.id, int)
+
+class Padya(Anuchchheda):
+
+    def __init__(self, index, lines):
+
+        super().__init__(index, lines)
 
     def __repr__(self):
 
-        return 'Chhanda {}\n'.format(self.id) + ''.join(self.raw) + '\n'
+        return 'पद्य {}\n\n'.format(vk.get_sankhyaa(self.id)) + ''.join(self.raw)
+
+class Gadya(Anuchchheda):
+
+    def __init__(self, index, lines):
+
+        super().__init__(index, lines)
+
+    def __repr__(self):
+
+        return 'गद्य {}\n\n'.format(vk.get_sankhyaa(self.id)) + ''.join(self.raw)
 
 
-def create_chhandas_list(fname):
+def is_padya(lines):
+    if len(lines) == 4:
+        return True
+    elif len(lines) == 1:
+        return False
+    else:
+        print("Unknown type of kaavya")
+        sys.exit()
 
-    chhandas_list = []
+def create_anuchchheda_list(fname):
+
+    anuchchheda_list = []
 
     with open(fname, 'r') as f:
         data = f.readlines()
@@ -25,14 +53,16 @@ def create_chhandas_list(fname):
     for i in range(len(data)):
         if data[i] == '\n':
             stop = i
-            chhandas_list.append(Chhanda(index=index, lines=data[start:stop]))
+            lines = data[start:stop]
+            anuchchheda_list.append(Padya(index=index, lines=lines) if is_padya(lines) else Gadya(index=index, lines=lines))
             start = stop + 1
             index += 1
 
-    return chhandas_list
+    return anuchchheda_list
 
 if __name__ == '__main__':
 
-    chhandas_list = create_chhandas_list('gita_moola.txt')
+    anuchchheda_list = create_anuchchheda_list('champuuraamaayana.txt')
 
-    print(chhandas_list)
+    for anuchchheda in anuchchheda_list:
+        print(anuchchheda)
