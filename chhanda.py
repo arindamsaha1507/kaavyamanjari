@@ -1,6 +1,12 @@
 import sys
 import varnakaarya as vk
 
+from varna import *
+
+laghu = '।'
+guru = 'ऽ'
+
+
 sys.stdout = open('logger.txt', 'w')
 
 class Anuchchheda:
@@ -17,9 +23,44 @@ class Padya(Anuchchheda):
 
         super().__init__(index, lines)
 
+        self.prastaara = self.get_prastaara()
+
     def __repr__(self):
 
-        return 'पद्य {}\n\n'.format(vk.get_sankhyaa(self.id)) + ''.join(self.raw)
+        return 'पद्य {}\n{}\n'.format(vk.get_sankhyaa(self.id), self.prastaara) + ''.join(self.raw)
+    
+    def get_prastaara(self):
+
+        prastaara = []
+
+        for verse in self.raw:
+
+            verse = vk.get_vinyaasa(verse)
+
+            for i in range(len(verse)):
+
+                x = verse[i]
+
+                if x not in svara:
+                    continue
+
+                if x not in ['अ', 'इ', 'उ']:
+                    prastaara.append(guru)
+
+                elif i + 1 < len(verse) and verse[i+1] in ['ं', 'ः']:
+                    prastaara.append(guru)
+
+                elif i + 2 < len(verse) and verse[i+1] in vyanjana and verse[i+2] in vyanjana:
+                    prastaara.append(guru)
+
+                else:
+                    prastaara.append(laghu)
+
+            prastaara.append('\n')
+
+        prastaara = ''.join(prastaara)
+
+        return prastaara
 
 class Gadya(Anuchchheda):
 
