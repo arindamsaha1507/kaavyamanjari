@@ -23,6 +23,7 @@ class Padya(Anuchchheda):
 
         super().__init__(index, lines)
 
+        self.paada = [x.rstrip('\n') for x in self.raw]
         self.prastaara = self.get_prastaara()
 
     def __repr__(self):
@@ -60,6 +61,8 @@ class Padya(Anuchchheda):
 
         prastaara = ''.join(prastaara)
 
+        prastaara = prastaara.split('\n')[:-1]
+
         return prastaara
 
 class Gadya(Anuchchheda):
@@ -71,7 +74,6 @@ class Gadya(Anuchchheda):
     def __repr__(self):
 
         return 'गद्य {}\n\n'.format(vk.get_sankhyaa(self.id)) + ''.join(self.raw)
-
 
 def is_padya(lines):
     if len(lines) == 4:
