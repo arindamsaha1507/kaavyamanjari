@@ -1,3 +1,4 @@
+import sys
 from varna import *
 
 def maarjaka(word):
@@ -60,3 +61,19 @@ def get_vinyaasa(shabda):
             vinyaasa.append(x)
     
     return vinyaasa
+
+def get_sankhyaa(s):
+
+    r = ''
+    s = str(s)
+
+    for x in s:
+        if x == '.':
+            r += x
+        elif int(x) < 0 or int(x) > 9:
+            print("{} is Not a digit".format(x))
+            sys.exit()
+        else:
+            r += sankhyaa[int(x)]
+
+    return r
