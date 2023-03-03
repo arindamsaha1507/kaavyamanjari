@@ -2,8 +2,8 @@ import sys
 import varnakaarya as vk
 import yaml
 import pandas as pd
-
 from varna import *
+import Levenshtein
 
 sys.stdout = open('logger.txt', 'w')
 
@@ -139,16 +139,58 @@ class Anuchchheda:
 
 class Padya(Anuchchheda):
 
-    def __init__(self, index, lines):
+    def __init__(self, index, lines, reference_file='reference.csv'):
 
         super().__init__(index, lines)
 
         self.paada = [x.rstrip('\n') for x in self.raw]
         self.prastaara = self.get_prastaara()
+        self.reference = pd.read_csv(reference_file)
+
+        self.vritta, self.error = self.match_vritta()
+
+        if len(set(self.vritta)) == 1:
+            self.vritta = self.vritta[0]
+        else:
+            self.vritta = ', '.join(self.vritta)
 
     def __repr__(self):
 
-        return 'पद्य {}\n{}\n'.format(vk.get_sankhyaa(self.id), self.prastaara) + ''.join(self.raw)
+        if len(set(self.error)) == 1 and self.error[0] == '0':
+            return 'पद्य {}\n{}\n\n'.format(vk.get_sankhyaa(self.id), self.vritta) + ''.join(self.raw)
+        else:
+            return 'पद्य {}\n{} त्रुटि: {}\n\n'.format(vk.get_sankhyaa(self.id), self.vritta, '+'.join(self.error)) + ''.join(self.raw)
+
+    
+    def match_vritta(self):
+
+        vritta = []
+        difference = []
+
+        pp = list(self.reference['prastaara'])
+        
+        for xx in self.prastaara:
+
+            distances = list(Levenshtein.distance(xx, yy) for yy in pp)
+            if 0 not in distances:
+                xx = xx[:-1] + guru
+                distances = list(Levenshtein.distance(xx, yy) for yy in pp)
+
+
+            min_index = 0
+            min_value = distances[0]
+
+            for ii in range(len(distances)):
+
+                if distances[ii] < min_value:
+                    min_index = ii
+                    min_value = distances[ii]
+
+            vritta.append(list(self.reference['naama'])[min_index])
+            difference.append(str(min_value))
+
+        return vritta, difference
+
     
     def get_prastaara(self):
 
@@ -157,6 +199,7 @@ class Padya(Anuchchheda):
         for verse in self.raw:
 
             verse = vk.get_vinyaasa(verse)
+            verse = list(filter(' '.__ne__, verse))
 
             for i in range(len(verse)):
 
@@ -165,7 +208,7 @@ class Padya(Anuchchheda):
                 if x not in svara:
                     continue
 
-                if x not in ['अ', 'इ', 'उ']:
+                if x not in ['अ', 'इ', 'उ', 'ऋ']:
                     prastaara.append(guru)
 
                 elif i + 1 < len(verse) and verse[i+1] in ['ं', 'ः']:
@@ -225,9 +268,9 @@ def create_anuchchheda_list(fname):
 
 if __name__ == '__main__':
 
-    create_reference('sandarbha.yml', 'reference.csv')
+    # create_reference('sandarbha.yml', 'reference.csv')
 
-    # anuchchheda_list = create_anuchchheda_list('champuuraamaayana.txt')
+    anuchchheda_list = create_anuchchheda_list('champuuraamaayana.txt')
 
-    # for anuchchheda in anuchchheda_list:
-    #     print(anuchchheda)
+    for anuchchheda in anuchchheda_list:
+        print(anuchchheda)
