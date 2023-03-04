@@ -165,7 +165,7 @@ class Anuchchheda:
 
 
 class Padya(Anuchchheda):
-    """A class to represent a padya (prose) paragraph of the text
+    """A class to represent a padya (verse) paragraph of the text
     """
 
     def __init__(self, index, lines, reference_file='reference.csv'):
@@ -198,50 +198,64 @@ class Padya(Anuchchheda):
 
         raw = ''.join(self.raw)
 
-        if len(set(self.error)) == 1 and self.error[0] == '0':
+        if len(set(self.error)) == 1 and str(self.error[0]) == '0':
 
             string = f'पद्य {vk.get_sankhyaa(self.index)}\n'
             string += f'{self.vritta}\n{self.prastaara}\n\n{raw}'
 
         else:
-            error = '+'.join(self.error)
-            string =  f'पद्य {vk.get_sankhyaa(self.index)}\n'
+            error = [str(x) for x in self.error]
+            error = '+'.join(error)
+            string = f'पद्य {vk.get_sankhyaa(self.index)}\n'
             string += f'{self.vritta} त्रुटि: {error}\n{self.prastaara}\n\n{raw}'
 
         return string
 
     def match_vritta(self):
+        """Matches the padya against the known vrittas
+
+        Returns:
+            list(str), list(int): Name of the closest vritta and error from ideal for each paada 
+        """
 
         vritta = []
         difference = []
 
-        pp = list(self.reference['prastaara'])
+        list_prastaaras = list(self.reference['prastaara'])
 
-        for xx in self.prastaara:
+        for paada_prastaara in self.prastaara:
 
-            distances = list(Levenshtein.distance(xx, yy) for yy in pp)
+            distances = list(Levenshtein.distance(paada_prastaara, yy)
+                             for yy in list_prastaaras)
             if 0 not in distances:
-                xx_trial = xx[:-1] + GURU
-                distances_trial = list(
-                    Levenshtein.distance(xx_trial, yy) for yy in pp)
+                paada_prastaara_trial = paada_prastaara[:-1] + GURU
+
+                distances_trial = list(Levenshtein.distance(
+                    paada_prastaara_trial, yy) for yy in list_prastaaras)
+
                 if 0 in distances_trial:
                     distances = distances_trial
 
             min_index = 0
             min_value = distances[0]
 
-            for ii in range(len(distances)):
+            for index, distance in enumerate(distances):
 
-                if distances[ii] < min_value:
-                    min_index = ii
-                    min_value = distances[ii]
+                if distance < min_value:
+                    min_index = index
+                    min_value = distance
 
             vritta.append(list(self.reference['naama'])[min_index])
-            difference.append(str(min_value))
+            difference.append(min_value)
 
         return vritta, difference
 
     def get_prastaara(self):
+        """Gives the prastaara of the padya
+
+        Returns:
+            list(string): Prastaara of each paada
+        """
 
         prastaara = []
 
@@ -250,20 +264,20 @@ class Padya(Anuchchheda):
             verse = vk.get_vinyaasa(verse)
             verse = list(filter(' '.__ne__, verse))
 
-            for i in range(len(verse)):
+            for index, varna in enumerate(verse):
 
-                x = verse[i]
-
-                if x not in svara:
+                if varna not in svara:
                     continue
 
-                if x not in ['अ', 'इ', 'उ', 'ऋ']:
+                if varna not in ['अ', 'इ', 'उ', 'ऋ']:
                     prastaara.append(GURU)
 
-                elif i + 1 < len(verse) and verse[i+1] in ['ं', 'ः']:
+                elif index + 1 < len(verse) and verse[index + 1] in ['ं', 'ः']:
                     prastaara.append(GURU)
 
-                elif i + 2 < len(verse) and verse[i+1] in vyanjana and verse[i+2] in vyanjana:
+                elif (index + 2 < len(verse) and 
+                      verse[index + 1] in vyanjana and 
+                      verse[index + 2] in vyanjana):
                     prastaara.append(GURU)
 
                 else:
@@ -279,23 +293,42 @@ class Padya(Anuchchheda):
 
 
 class Gadya(Anuchchheda):
+    """A class to represent a padya (verse) paragraph of the text
+    """
 
     def __repr__(self):
 
-        return 'गद्य {}\n\n'.format(vk.get_sankhyaa(self.index)) + ''.join(self.raw)
+        raw = ''.join(self.raw)
+        return f'गद्य {vk.get_sankhyaa(self.index)}\n\n{raw}'
 
 
-def is_padya(lines):
+def is_padya(lines: list) -> bool:
+    """Checks if an anuchchheda is padya or gadya
+
+    Args:
+        lines (list): Lines in the anuchchheda
+
+    Returns:
+        bool: True if padya and False if gadya
+    """
+
     if len(lines) in [4, 2]:
         return True
-    elif len(lines) == 1:
+    if len(lines) == 1:
         return False
-    else:
-        print("Unknown type of kaavya")
-        sys.exit()
+    print("Unknown type of kaavya")
+    sys.exit()
 
 
-def create_anuchchheda_list(fname):
+def create_anuchchheda_list(fname: str) -> list:
+    """Parses the text file into anuchchhedas of gadya and padya
+
+    Args:
+        fname (str): Input text filename
+
+    Returns:
+        list: List of gadya and padya anuchchhedas in the text
+    """
 
     anuchchheda_list = []
 
@@ -304,8 +337,8 @@ def create_anuchchheda_list(fname):
 
     start = 0
     index = 1
-    for i in range(len(data)):
-        if data[i] == '\n':
+    for i, line in enumerate(data):
+        if line == '\n':
             stop = i
             lines = data[start:stop]
             anuchchheda_list.append(Padya(index=index, lines=lines) if is_padya(
@@ -321,7 +354,9 @@ if __name__ == '__main__':
     # create_reference('sandarbha.yml', 'reference.csv')
 
     # anuchchheda_list = create_anuchchheda_list('gita_moola.txt')
-    anuchchhedas = create_anuchchheda_list('champuuraamaayana.txt')
+
+    TEXT = 'champuuraamaayana.txt'
+    anuchchhedas = create_anuchchheda_list(TEXT)
 
     for anuchchheda in anuchchhedas:
         print(anuchchheda)
