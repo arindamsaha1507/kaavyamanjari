@@ -18,6 +18,9 @@ def break_paada(vinyaasa):
     while count_svaras(vinyaasa[0:i]) < count_svaras(vinyaasa)/2.0:
         i += 1
 
+    if vinyaasa[i] in ['ः', 'ं'] or vinyaasa[i] not in [' ']:
+        i += 1
+
     return [vinyaasa[0:i], vinyaasa[i:]]
 
 def add_akaara(shabda, index, vinyaasa):
@@ -61,6 +64,36 @@ def get_vinyaasa(shabda):
             vinyaasa.append(x)
     
     return vinyaasa
+
+def get_shabda(vinyaasa):
+
+    shabda = ''
+
+    for ii in range(len(vinyaasa)):
+
+        varna = vinyaasa[ii]
+
+        if ii == 0 and varna in svara:
+            jj = varna
+        elif varna in svara and (vinyaasa[ii-1] in svara or vinyaasa[ii-1] == ' '):
+            jj = varna
+        elif varna in vyanjana and ii+1 < len(vinyaasa):
+            if vinyaasa[ii+1] in svara or vinyaasa[ii+1] in anunaasika_svara:
+                jj = varna[0]
+            else:
+                jj = varna
+        elif varna == 'अ':
+            jj = ''
+        elif varna in svara:
+            jj = svara_to_maatraa[varna]
+        elif varna in anunaasika_svara:
+            jj = svara_to_maatraa[varna[0]] + 'ँ'
+        else:
+            jj = varna
+
+        shabda = shabda+jj
+
+    return shabda
 
 def get_sankhyaa(s):
 

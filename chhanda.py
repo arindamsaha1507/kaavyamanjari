@@ -141,6 +141,17 @@ class Padya(Anuchchheda):
 
     def __init__(self, index, lines, reference_file='reference.csv'):
 
+        if len(lines) == 2:
+            x = vk.get_vinyaasa(lines[0])
+            y = vk.get_vinyaasa(lines[1])
+            a, b = vk.break_paada(x)
+            c, d = vk.break_paada(y)
+            a = vk.get_shabda(a).strip() + '\n'
+            b = vk.get_shabda(b).strip() + '\n'
+            c = vk.get_shabda(c).strip() + '\n'
+            d = vk.get_shabda(d).strip() + '\n'
+            lines = [a, b, c, d]
+
         super().__init__(index, lines)
 
         self.paada = [x.rstrip('\n') for x in self.raw]
@@ -199,6 +210,8 @@ class Padya(Anuchchheda):
         for verse in self.raw:
 
             verse = vk.get_vinyaasa(verse)
+            # print(verse)
+            # print(vk.get_shabda(verse))
             verse = list(filter(' '.__ne__, verse))
 
             for i in range(len(verse)):
@@ -239,7 +252,7 @@ class Gadya(Anuchchheda):
         return 'गद्य {}\n\n'.format(vk.get_sankhyaa(self.id)) + ''.join(self.raw)
 
 def is_padya(lines):
-    if len(lines) == 4:
+    if len(lines) in [4, 2]:
         return True
     elif len(lines) == 1:
         return False
@@ -270,7 +283,7 @@ if __name__ == '__main__':
 
     # create_reference('sandarbha.yml', 'reference.csv')
 
-    anuchchheda_list = create_anuchchheda_list('champuuraamaayana.txt')
+    anuchchheda_list = create_anuchchheda_list('gita_moola.txt')
 
     for anuchchheda in anuchchheda_list:
         print(anuchchheda)
