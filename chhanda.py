@@ -167,9 +167,9 @@ class Padya(Anuchchheda):
     def __repr__(self):
 
         if len(set(self.error)) == 1 and self.error[0] == '0':
-            return 'पद्य {}\n{}\n\n'.format(vk.get_sankhyaa(self.id), self.vritta) + ''.join(self.raw)
+            return 'पद्य {}\n{}\n{}\n\n'.format(vk.get_sankhyaa(self.id), self.vritta, self.prastaara) + ''.join(self.raw)
         else:
-            return 'पद्य {}\n{} त्रुटि: {}\n\n'.format(vk.get_sankhyaa(self.id), self.vritta, '+'.join(self.error)) + ''.join(self.raw)
+            return 'पद्य {}\n{} त्रुटि: {}\n{}\n\n'.format(vk.get_sankhyaa(self.id), self.vritta, '+'.join(self.error), self.prastaara) + ''.join(self.raw)
 
     
     def match_vritta(self):
@@ -183,9 +183,10 @@ class Padya(Anuchchheda):
 
             distances = list(Levenshtein.distance(xx, yy) for yy in pp)
             if 0 not in distances:
-                xx = xx[:-1] + guru
-                distances = list(Levenshtein.distance(xx, yy) for yy in pp)
-
+                xx_trial = xx[:-1] + guru
+                distances_trial = list(Levenshtein.distance(xx_trial, yy) for yy in pp)
+                if 0 in distances_trial:
+                    distances = distances_trial
 
             min_index = 0
             min_value = distances[0]
@@ -280,7 +281,8 @@ if __name__ == '__main__':
 
     # create_reference('sandarbha.yml', 'reference.csv')
 
-    anuchchheda_list = create_anuchchheda_list('gita_moola.txt')
+    # anuchchheda_list = create_anuchchheda_list('gita_moola.txt')
+    anuchchheda_list = create_anuchchheda_list('champuuraamaayana.txt')
 
     for anuchchheda in anuchchheda_list:
         print(anuchchheda)
