@@ -79,7 +79,6 @@ def ganavibhaaga_to_prastaara(ganavibhaaga):
 
     return prastaara
 
-
 def create_reference(input_file, output_file):
 
     with open(input_file, 'r') as f:
@@ -210,8 +209,6 @@ class Padya(Anuchchheda):
         for verse in self.raw:
 
             verse = vk.get_vinyaasa(verse)
-            # print(verse)
-            # print(vk.get_shabda(verse))
             verse = list(filter(' '.__ne__, verse))
 
             for i in range(len(verse)):

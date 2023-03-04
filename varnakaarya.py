@@ -38,9 +38,6 @@ def add_akaara(shabda, index, vinyaasa):
 def get_vinyaasa(shabda):
 
     shabda = maarjaka(shabda)
-
-    # print(shabda)
-
     vinyaasa = []
 
     for i in range(len(shabda)):
