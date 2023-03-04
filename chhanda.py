@@ -1,14 +1,14 @@
 import sys
-import varnakaarya as vk
-import yaml
-import pandas as pd
-from varna import *
 import Levenshtein
+import pandas as pd
+import yaml
+import varnakaarya as vk
+from varna import svara, vyanjana
 
-sys.stdout = open('logger.txt', 'w')
+sys.stdout = open('logger.txt', 'w', encoding='utf-8')
 
-laghu = '।'
-guru = 'ऽ'
+LAGHU = '।'
+GURU = 'ऽ'
 
 def prastaara_to_ganavibhaaga(prastaara):
 
@@ -20,28 +20,28 @@ def prastaara_to_ganavibhaaga(prastaara):
 
         if i + 3 > len(prastaara):
 
-            s += 'ल' if prastaara[i] == laghu else 'ग'
+            s += 'ल' if prastaara[i] == LAGHU else 'ग'
             i += 1
 
         else:
 
             test = prastaara[i]+prastaara[i+1]+prastaara[i+2]
 
-            if test == laghu + guru + guru:
+            if test == LAGHU + GURU + GURU:
                 cc = 'य'
-            if test == guru + laghu + guru:
+            if test == GURU + LAGHU + GURU:
                 cc = 'र'
-            if test == guru + guru + laghu:
+            if test == GURU + GURU + LAGHU:
                 cc = 'त'
-            if test == guru + laghu + laghu:
+            if test == GURU + LAGHU + LAGHU:
                 cc = 'भ'
-            if test == laghu + guru + laghu:
+            if test == LAGHU + GURU + LAGHU:
                 cc = 'ज'
-            if test == laghu + laghu + guru:
+            if test == LAGHU + LAGHU + GURU:
                 cc = 'स'
-            if test == guru + guru + guru:
+            if test == GURU + GURU + GURU:
                 cc = 'म'
-            if test == laghu + laghu + laghu:
+            if test == LAGHU + LAGHU + LAGHU:
                 cc = 'न'
 
             s += cc
@@ -57,31 +57,31 @@ def ganavibhaaga_to_prastaara(ganavibhaaga):
     for gana in ganavibhaaga:
 
         if gana == 'य':
-            prastaara += laghu + guru + guru
+            prastaara += LAGHU + GURU + GURU
         if gana == 'र':
-            prastaara += guru + laghu + guru
+            prastaara += GURU + LAGHU + GURU
         if gana == 'त':
-            prastaara += guru + guru + laghu
+            prastaara += GURU + GURU + LAGHU
         if gana == 'भ':
-            prastaara += guru + laghu + laghu
+            prastaara += GURU + LAGHU + LAGHU
         if gana == 'ज':
-            prastaara += laghu + guru + laghu
+            prastaara += LAGHU + GURU + LAGHU
         if gana == 'स':
-            prastaara += laghu + laghu + guru
+            prastaara += LAGHU + LAGHU + GURU
         if gana == 'म':
-            prastaara += guru + guru + guru
+            prastaara += GURU + GURU + GURU
         if gana == 'न':
-            prastaara += laghu + laghu + laghu
+            prastaara += LAGHU + LAGHU + LAGHU
         if gana == 'ग':
-            prastaara += guru
+            prastaara += GURU
         if gana == 'ल':
-            prastaara += laghu
+            prastaara += LAGHU
 
     return prastaara
 
 def create_reference(input_file, output_file):
 
-    with open(input_file, 'r') as f:
+    with open(input_file, 'r', encoding='utf-8') as f:
         ref = yaml.safe_load(f)
 
     jaati_list = [x.split(' ')[0] for x in list(ref['समवृत्त'].keys())]
@@ -183,7 +183,7 @@ class Padya(Anuchchheda):
 
             distances = list(Levenshtein.distance(xx, yy) for yy in pp)
             if 0 not in distances:
-                xx_trial = xx[:-1] + guru
+                xx_trial = xx[:-1] + GURU
                 distances_trial = list(Levenshtein.distance(xx_trial, yy) for yy in pp)
                 if 0 in distances_trial:
                     distances = distances_trial
@@ -220,16 +220,16 @@ class Padya(Anuchchheda):
                     continue
 
                 if x not in ['अ', 'इ', 'उ', 'ऋ']:
-                    prastaara.append(guru)
+                    prastaara.append(GURU)
 
                 elif i + 1 < len(verse) and verse[i+1] in ['ं', 'ः']:
-                    prastaara.append(guru)
+                    prastaara.append(GURU)
 
                 elif i + 2 < len(verse) and verse[i+1] in vyanjana and verse[i+2] in vyanjana:
-                    prastaara.append(guru)
+                    prastaara.append(GURU)
 
                 else:
-                    prastaara.append(laghu)
+                    prastaara.append(LAGHU)
 
             prastaara.append('\n')
 
@@ -262,7 +262,7 @@ def create_anuchchheda_list(fname):
 
     anuchchheda_list = []
 
-    with open(fname, 'r') as f:
+    with open(fname, 'r', encoding='utf-8') as f:
         data = f.readlines()
 
     start = 0
@@ -282,7 +282,7 @@ if __name__ == '__main__':
     # create_reference('sandarbha.yml', 'reference.csv')
 
     # anuchchheda_list = create_anuchchheda_list('gita_moola.txt')
-    anuchchheda_list = create_anuchchheda_list('champuuraamaayana.txt')
+    anuchchhedas = create_anuchchheda_list('champuuraamaayana.txt')
 
-    for anuchchheda in anuchchheda_list:
+    for anuchchheda in anuchchhedas:
         print(anuchchheda)
