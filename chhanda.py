@@ -1,3 +1,4 @@
+"""Module to set stdout and other related tasks"""
 import sys
 import Levenshtein
 import pandas as pd
@@ -10,17 +11,26 @@ sys.stdout = open('logger.txt', 'w', encoding='utf-8')
 LAGHU = '।'
 GURU = 'ऽ'
 
-def prastaara_to_ganavibhaaga(prastaara):
+
+def prastaara_to_ganavibhaaga(prastaara: str) -> str:
+    """Converts the prastaara of a kaavya to the ganavibhaaga
+
+    Args:
+        prastaara (str): prastaara
+
+    Returns:
+        str: ganavibhaaga
+    """
 
     prastaara = list(prastaara)
-    s = ''
+    ganavibhaaga = ''
     i = 0
 
     while i < len(prastaara):
 
         if i + 3 > len(prastaara):
 
-            s += 'ल' if prastaara[i] == LAGHU else 'ग'
+            ganavibhaaga += 'ल' if prastaara[i] == LAGHU else 'ग'
             i += 1
 
         else:
@@ -28,29 +38,38 @@ def prastaara_to_ganavibhaaga(prastaara):
             test = prastaara[i]+prastaara[i+1]+prastaara[i+2]
 
             if test == LAGHU + GURU + GURU:
-                cc = 'य'
+                gana = 'य'
             if test == GURU + LAGHU + GURU:
-                cc = 'र'
+                gana = 'र'
             if test == GURU + GURU + LAGHU:
-                cc = 'त'
+                gana = 'त'
             if test == GURU + LAGHU + LAGHU:
-                cc = 'भ'
+                gana = 'भ'
             if test == LAGHU + GURU + LAGHU:
-                cc = 'ज'
+                gana = 'ज'
             if test == LAGHU + LAGHU + GURU:
-                cc = 'स'
+                gana = 'स'
             if test == GURU + GURU + GURU:
-                cc = 'म'
+                gana = 'म'
             if test == LAGHU + LAGHU + LAGHU:
-                cc = 'न'
+                gana = 'न'
 
-            s += cc
+            ganavibhaaga += gana
 
             i += 3
 
-    return s
+    return ganavibhaaga
 
-def ganavibhaaga_to_prastaara(ganavibhaaga):
+
+def ganavibhaaga_to_prastaara(ganavibhaaga: str) -> str:
+    """Converts the ganavibhaaga of a kaavya to the prastaara
+
+    Args:
+        ganavibhaaga (str): ganavibhaaga
+
+    Returns:
+        str: prastaara
+    """
 
     prastaara = ''
 
@@ -79,7 +98,14 @@ def ganavibhaaga_to_prastaara(ganavibhaaga):
 
     return prastaara
 
-def create_reference(input_file, output_file):
+
+def create_reference(input_file: str, output_file: str):
+    """Creates reference for chhaanda types and their lakshana from yaml file and saves in csv file
+
+    Args:
+        input_file (str): input filename (.yml)
+        output_file (str)): output filename (.csv)
+    """
 
     with open(input_file, 'r', encoding='utf-8') as f:
         ref = yaml.safe_load(f)
@@ -98,19 +124,19 @@ def create_reference(input_file, output_file):
     ganavibhaaga = []
     jaati = []
 
-    for x in gana:
-        if ' ' in x:
-            ganavibhaaga.append(x.split(' ')[0])
-            yati.append(x.split(' ')[1])
+    for element in gana:
+        if ' ' in element:
+            ganavibhaaga.append(element.split(' ')[0])
+            yati.append(element.split(' ')[1])
         else:
-            ganavibhaaga.append(x)
+            ganavibhaaga.append(element)
             yati.append('-')
 
     prastaara = list(ganavibhaaga_to_prastaara(x) for x in ganavibhaaga)
 
-    for x in prastaara:
-        if len(x) <= len(jaati_list):
-            jaati.append(jaati_list[len(x)-1])
+    for element in prastaara:
+        if len(element) <= len(jaati_list):
+            jaati.append(jaati_list[len(element)-1])
         else:
             jaati.append(jaati_list[-1])
 
@@ -127,29 +153,33 @@ def create_reference(input_file, output_file):
     df.to_csv(output_file, index=False)
 
 
-
 class Anuchchheda:
+    """A class to represent an anuchchheda (paragraph) of the text
+    """
 
     def __init__(self, index, lines):
-        self.id = index
+        self.index = index
         self.raw = lines
 
-        assert isinstance(self.id, int)
+        assert isinstance(self.index, int)
+
 
 class Padya(Anuchchheda):
+    """A class to represent a padya (prose) paragraph of the text
+    """
 
     def __init__(self, index, lines, reference_file='reference.csv'):
 
         if len(lines) == 2:
-            x = vk.get_vinyaasa(lines[0])
-            y = vk.get_vinyaasa(lines[1])
-            a, b = vk.break_paada(x)
-            c, d = vk.break_paada(y)
-            a = vk.get_shabda(a).strip() + '\n'
-            b = vk.get_shabda(b).strip() + '\n'
-            c = vk.get_shabda(c).strip() + '\n'
-            d = vk.get_shabda(d).strip() + '\n'
-            lines = [a, b, c, d]
+            temp_x = vk.get_vinyaasa(lines[0])
+            temp_y = vk.get_vinyaasa(lines[1])
+            temp_a, temp_b = vk.break_paada(temp_x)
+            temp_c, temp_d = vk.break_paada(temp_y)
+            temp_a = vk.get_shabda(temp_a).strip() + '\n'
+            temp_b = vk.get_shabda(temp_b).strip() + '\n'
+            temp_c = vk.get_shabda(temp_c).strip() + '\n'
+            temp_d = vk.get_shabda(temp_d).strip() + '\n'
+            lines = [temp_a, temp_b, temp_c, temp_d]
 
         super().__init__(index, lines)
 
@@ -166,25 +196,34 @@ class Padya(Anuchchheda):
 
     def __repr__(self):
 
-        if len(set(self.error)) == 1 and self.error[0] == '0':
-            return 'पद्य {}\n{}\n{}\n\n'.format(vk.get_sankhyaa(self.id), self.vritta, self.prastaara) + ''.join(self.raw)
-        else:
-            return 'पद्य {}\n{} त्रुटि: {}\n{}\n\n'.format(vk.get_sankhyaa(self.id), self.vritta, '+'.join(self.error), self.prastaara) + ''.join(self.raw)
+        raw = ''.join(self.raw)
 
-    
+        if len(set(self.error)) == 1 and self.error[0] == '0':
+
+            string = f'पद्य {vk.get_sankhyaa(self.index)}\n'
+            string += f'{self.vritta}\n{self.prastaara}\n\n{raw}'
+
+        else:
+            error = '+'.join(self.error)
+            string =  f'पद्य {vk.get_sankhyaa(self.index)}\n'
+            string += f'{self.vritta} त्रुटि: {error}\n{self.prastaara}\n\n{raw}'
+
+        return string
+
     def match_vritta(self):
 
         vritta = []
         difference = []
 
         pp = list(self.reference['prastaara'])
-        
+
         for xx in self.prastaara:
 
             distances = list(Levenshtein.distance(xx, yy) for yy in pp)
             if 0 not in distances:
                 xx_trial = xx[:-1] + GURU
-                distances_trial = list(Levenshtein.distance(xx_trial, yy) for yy in pp)
+                distances_trial = list(
+                    Levenshtein.distance(xx_trial, yy) for yy in pp)
                 if 0 in distances_trial:
                     distances = distances_trial
 
@@ -202,7 +241,6 @@ class Padya(Anuchchheda):
 
         return vritta, difference
 
-    
     def get_prastaara(self):
 
         prastaara = []
@@ -239,15 +277,13 @@ class Padya(Anuchchheda):
 
         return prastaara
 
+
 class Gadya(Anuchchheda):
-
-    def __init__(self, index, lines):
-
-        super().__init__(index, lines)
 
     def __repr__(self):
 
-        return 'गद्य {}\n\n'.format(vk.get_sankhyaa(self.id)) + ''.join(self.raw)
+        return 'गद्य {}\n\n'.format(vk.get_sankhyaa(self.index)) + ''.join(self.raw)
+
 
 def is_padya(lines):
     if len(lines) in [4, 2]:
@@ -257,6 +293,7 @@ def is_padya(lines):
     else:
         print("Unknown type of kaavya")
         sys.exit()
+
 
 def create_anuchchheda_list(fname):
 
@@ -271,11 +308,13 @@ def create_anuchchheda_list(fname):
         if data[i] == '\n':
             stop = i
             lines = data[start:stop]
-            anuchchheda_list.append(Padya(index=index, lines=lines) if is_padya(lines) else Gadya(index=index, lines=lines))
+            anuchchheda_list.append(Padya(index=index, lines=lines) if is_padya(
+                lines) else Gadya(index=index, lines=lines))
             start = stop + 1
             index += 1
 
     return anuchchheda_list
+
 
 if __name__ == '__main__':
 
