@@ -1,5 +1,5 @@
 import sys
-from varna import *
+import varna as vn
 
 def maarjaka(word):
     word = word.rstrip('\n')
@@ -9,7 +9,7 @@ def maarjaka(word):
 
 def count_svaras(vinyaasa):
 
-    return sum([1 for x in vinyaasa if x in svara])
+    return sum([1 for x in vinyaasa if x in vn.svara])
 
 def break_paada(vinyaasa):
 
@@ -26,7 +26,7 @@ def break_paada(vinyaasa):
 def add_akaara(shabda, index, vinyaasa):
 
     if index+1 < len(shabda):
-        if shabda[index+1] in vyanjana_with_akaara or shabda[index+1] in avasaana or shabda[index+1] in ['ः', 'ं']:
+        if shabda[index+1] in vn.vyanjana_with_akaara or shabda[index+1] in vn.avasaana or shabda[index+1] in ['ः', 'ं']:
             vinyaasa.append('अ')
         if shabda[index+1] in ['ँ']:
             vinyaasa.append('अँ')
@@ -42,19 +42,19 @@ def get_vinyaasa(shabda):
 
     for i in range(len(shabda)):
         x = shabda[i]
-        if x in svara:
+        if x in vn.svara:
             vinyaasa.append(x)
-        elif x in vyanjana_with_akaara:
+        elif x in vn.vyanjana_with_akaara:
             vinyaasa.append(x+'्')
             vinyaasa = add_akaara(shabda, i, vinyaasa)
-        elif x in maatraa:
+        elif x in vn.maatraa:
             if i+1 < len(shabda):
                 if shabda[i+1] in ['ँ']:
-                    vinyaasa.append(maatraa_to_svara[x]+'ँ')
+                    vinyaasa.append(vn.maatraa_to_svara[x]+'ँ')
                 else:
-                    vinyaasa.append(maatraa_to_svara[x])
+                    vinyaasa.append(vn.maatraa_to_svara[x])
             else:
-                vinyaasa.append(maatraa_to_svara[x])
+                vinyaasa.append(vn.maatraa_to_svara[x])
         elif x in ['्', 'ँ']:
             pass
         else:
@@ -70,21 +70,21 @@ def get_shabda(vinyaasa):
 
         varna = vinyaasa[ii]
 
-        if ii == 0 and varna in svara:
+        if ii == 0 and varna in vn.svara:
             jj = varna
-        elif varna in svara and (vinyaasa[ii-1] in svara or vinyaasa[ii-1] == ' '):
+        elif varna in vn.svara and (vinyaasa[ii-1] in vn.svara or vinyaasa[ii-1] == ' '):
             jj = varna
-        elif varna in vyanjana and ii+1 < len(vinyaasa):
-            if vinyaasa[ii+1] in svara or vinyaasa[ii+1] in anunaasika_svara:
+        elif varna in vn.vyanjana and ii+1 < len(vinyaasa):
+            if vinyaasa[ii+1] in vn.svara or vinyaasa[ii+1] in vn.anunaasika_svara:
                 jj = varna[0]
             else:
                 jj = varna
         elif varna == 'अ':
             jj = ''
-        elif varna in svara:
-            jj = svara_to_maatraa[varna]
-        elif varna in anunaasika_svara:
-            jj = svara_to_maatraa[varna[0]] + 'ँ'
+        elif varna in vn.svara:
+            jj = vn.svara_to_maatraa[varna]
+        elif varna in vn.anunaasika_svara:
+            jj = vn.svara_to_maatraa[varna[0]] + 'ँ'
         else:
             jj = varna
 
@@ -104,6 +104,34 @@ def get_sankhyaa(s):
             print("{} is Not a digit".format(x))
             sys.exit()
         else:
-            r += sankhyaa[int(x)]
+            r += vn.sankhyaa[int(x)]
 
     return r
+
+def expand_pratyahaara(p):
+    
+    assert len(p)==3
+    assert p[2]=='्'
+
+    start = p[0]
+    stop = p[1]+p[2]
+
+    i = vn.maaheshwar_suutra.index(start)
+    j = vn.maaheshwar_suutra.index(stop)
+
+    r = vn.maaheshwar_suutra[i:j]
+
+    it = [x for x in r if x in vn.vyanjana]
+    for ii in it:
+        r.remove(ii)
+
+    rr = [x+'्' if x in vn.vyanjana_with_akaara else x for x in r]
+
+    if 'अ' in rr:
+        rr.append('आ')
+    if 'इ' in rr:
+        rr.append('ई')
+    if 'उ' in rr:
+        rr.append('ऊ')
+
+    return rr
