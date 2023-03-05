@@ -368,10 +368,6 @@ def create_anuchchheda_list(fname: str, source: dict) -> list:
 
 if __name__ == '__main__':
 
-    # create_reference('sandarbha.yml', 'reference.csv')
-
-    # anuchchheda_list = create_anuchchheda_list('gita_moola.txt')
-
     TEXT = 'champuuraamaayana.txt'
 
     sourcefile = 'source_' + TEXT.split('.', maxsplit=1)[0] + '.yml'
