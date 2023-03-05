@@ -1,17 +1,46 @@
+"""Handles all operations on varnas"""
+
 import sys
 import varna as vn
 
-def maarjaka(word):
-    word = word.rstrip('\n')
-    # word = word.replace(" ", "")
 
-    return word    
+def maarjaka(sentence: str) -> str:
+    """Cleans up a string
 
-def count_svaras(vinyaasa):
+    Args:
+        sentence (str): String to be cleaned
 
-    return sum([1 for x in vinyaasa if x in vn.svara])
+    Returns:
+        str: Clean string
+    """
 
-def break_paada(vinyaasa):
+    sentence = sentence.rstrip('\n')
+
+    return sentence
+
+
+def count_svaras(vinyaasa: list) -> int:
+    """Counts the number of svaras
+
+    Args:
+        vinyaasa (list): Vinyaasa of a string
+
+    Returns:
+        int: Number of svaras in the vinyaasa
+    """
+
+    return sum(1 for x in vinyaasa if x in vn.svara)
+
+
+def break_paada(vinyaasa: list) -> list:
+    """Breaks a line into two equal paadas
+
+    Args:
+        vinyaasa (list): Vinyaasa of the string to be broken
+
+    Returns:
+        list: List containing two resultant vinyaasas
+    """
 
     i = 0
 
@@ -23,115 +52,169 @@ def break_paada(vinyaasa):
 
     return [vinyaasa[0:i], vinyaasa[i:]]
 
-def add_akaara(shabda, index, vinyaasa):
+
+def add_akaara(shabda: str, index: int, vinyaasa: list) -> list:
+    """Decides on the type of akaara (anunaasika or not) to be added in the vinyaasa and adds it
+
+    Args:
+        shabda (str): String in consideration
+        index (int): Location in the string which is being considered
+        vinyaasa (list): Current state of the vinyaasa
+
+    Returns:
+        list: Updated vinyaasa
+    """
 
     if index+1 < len(shabda):
-        if shabda[index+1] in vn.vyanjana_with_akaara or shabda[index+1] in vn.avasaana or shabda[index+1] in ['ः', 'ं']:
+        if (shabda[index+1] in vn.vyanjana_with_akaara or
+            shabda[index+1] in vn.avasaana or
+            shabda[index+1] in ['ः', 'ं']):
+
             vinyaasa.append('अ')
+
         if shabda[index+1] in ['ँ']:
+
             vinyaasa.append('अँ')
     else:
         vinyaasa.append('अ')
 
     return vinyaasa
 
-def get_vinyaasa(shabda):
+
+def get_vinyaasa(shabda: str) -> list:
+    """Returns the vinyaasa (spelling) of a string
+
+    Args:
+        shabda (str): String to be spelled
+
+    Returns:
+        str: Spelling of the string
+    """
 
     shabda = maarjaka(shabda)
     vinyaasa = []
 
-    for i in range(len(shabda)):
-        x = shabda[i]
-        if x in vn.svara:
-            vinyaasa.append(x)
-        elif x in vn.vyanjana_with_akaara:
-            vinyaasa.append(x+'्')
-            vinyaasa = add_akaara(shabda, i, vinyaasa)
-        elif x in vn.maatraa:
-            if i+1 < len(shabda):
-                if shabda[i+1] in ['ँ']:
-                    vinyaasa.append(vn.maatraa_to_svara[x]+'ँ')
+    for index, element in enumerate(shabda):
+
+        if element in vn.svara:
+            vinyaasa.append(element)
+        elif element in vn.vyanjana_with_akaara:
+            vinyaasa.append(element+'्')
+            vinyaasa = add_akaara(shabda, index, vinyaasa)
+        elif element in vn.maatraa:
+            if index+1 < len(shabda):
+                if shabda[index+1] in ['ँ']:
+                    vinyaasa.append(vn.maatraa_to_svara[element]+'ँ')
                 else:
-                    vinyaasa.append(vn.maatraa_to_svara[x])
+                    vinyaasa.append(vn.maatraa_to_svara[element])
             else:
-                vinyaasa.append(vn.maatraa_to_svara[x])
-        elif x in ['्', 'ँ']:
+                vinyaasa.append(vn.maatraa_to_svara[element])
+        elif element in ['्', 'ँ']:
             pass
         else:
-            vinyaasa.append(x)
-    
+            vinyaasa.append(element)
+
     return vinyaasa
 
-def get_shabda(vinyaasa):
+
+def get_shabda(vinyaasa: list) -> str:
+    """Reconstructs a string from a vinyaasa (spelling)
+
+    Args:
+        vinyaasa (list): Spelling of the string
+
+    Returns:
+        str: Reconstructed string
+    """
 
     shabda = ''
 
-    for ii in range(len(vinyaasa)):
+    for index, varna in enumerate(vinyaasa):
 
-        varna = vinyaasa[ii]
-
-        if ii == 0 and varna in vn.svara:
-            jj = varna
-        elif varna in vn.svara and (vinyaasa[ii-1] in vn.svara or vinyaasa[ii-1] == ' '):
-            jj = varna
-        elif varna in vn.vyanjana and ii+1 < len(vinyaasa):
-            if vinyaasa[ii+1] in vn.svara or vinyaasa[ii+1] in vn.anunaasika_svara:
-                jj = varna[0]
+        if index == 0 and varna in vn.svara:
+            symbol = varna
+        elif varna in vn.svara and (vinyaasa[index-1] in vn.svara or vinyaasa[index-1] == ' '):
+            symbol = varna
+        elif varna in vn.vyanjana and index+1 < len(vinyaasa):
+            if vinyaasa[index+1] in vn.svara or vinyaasa[index+1] in vn.anunaasika_svara:
+                symbol = varna[0]
             else:
-                jj = varna
+                symbol = varna
         elif varna == 'अ':
-            jj = ''
+            symbol = ''
         elif varna in vn.svara:
-            jj = vn.svara_to_maatraa[varna]
+            symbol = vn.svara_to_maatraa[varna]
         elif varna in vn.anunaasika_svara:
-            jj = vn.svara_to_maatraa[varna[0]] + 'ँ'
+            symbol = vn.svara_to_maatraa[varna[0]] + 'ँ'
         else:
-            jj = varna
+            symbol = varna
 
-        shabda = shabda+jj
+        shabda = shabda+symbol
 
     return shabda
 
-def get_sankhyaa(s):
 
-    r = ''
-    s = str(s)
+def get_sankhyaa(roman: str) -> str:
+    """Converts romal numerals to devanaagari
 
-    for x in s:
-        if x == '.':
-            r += x
-        elif int(x) < 0 or int(x) > 9:
-            print("{} is Not a digit".format(x))
+    Args:
+        s (str): Roman number in string form
+
+    Returns:
+        str: Devanaagari number in string form
+    """
+
+    devanaagari = ''
+    roman = str(roman)
+
+    for digit in roman:
+        if digit == '.':
+            devanaagari += digit
+        elif int(digit) < 0 or int(digit) > 9:
+            print(f'{digit} is Not a digit')
             sys.exit()
         else:
-            r += vn.sankhyaa[int(x)]
+            devanaagari += vn.sankhyaa[int(digit)]
 
-    return r
+    return devanaagari
 
-def expand_pratyahaara(p):
-    
-    assert len(p)==3
-    assert p[2]=='्'
 
-    start = p[0]
-    stop = p[1]+p[2]
+def expand_pratyahaara(pratyaahaara: str) -> list:
+    """Expands a pratyaahaara
+
+    Args:
+        pratyaahaara (str): Pratyaahaara to be expanded
+
+    Returns:
+        list: List to varnas in expansion of the pratyaahaara
+    """
+
+    assert len(pratyaahaara) == 3
+    assert pratyaahaara[2] == '्'
+
+    start = pratyaahaara[0]
+    stop = pratyaahaara[1]+pratyaahaara[2]
 
     i = vn.maaheshwar_suutra.index(start)
     j = vn.maaheshwar_suutra.index(stop)
 
-    r = vn.maaheshwar_suutra[i:j]
+    section = vn.maaheshwar_suutra[i:j]
 
-    it = [x for x in r if x in vn.vyanjana]
-    for ii in it:
-        r.remove(ii)
+    it_letter = [x for x in section if x in vn.vyanjana]
+    for letter in it_letter:
+        section.remove(letter)
 
-    rr = [x+'्' if x in vn.vyanjana_with_akaara else x for x in r]
+    section = [x+'्' if x in vn.vyanjana_with_akaara else x for x in section]
 
-    if 'अ' in rr:
-        rr.append('आ')
-    if 'इ' in rr:
-        rr.append('ई')
-    if 'उ' in rr:
-        rr.append('ऊ')
+    if 'अ' in section:
+        section.append('आ')
+    if 'इ' in section:
+        section.append('ई')
+    if 'उ' in section:
+        section.append('ऊ')
 
-    return rr
+    return slice
+
+
+if __name__ == '__main__':
+    print(get_shabda(get_vinyaasa('रामः हरिः शम्भुः')))
