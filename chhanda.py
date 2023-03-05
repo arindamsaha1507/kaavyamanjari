@@ -6,8 +6,6 @@ import yaml
 import varnakaarya as vk
 from varna import svara, vyanjana
 
-sys.stdout = open('logger.txt', 'w', encoding='utf-8')
-
 LAGHU = '।'
 GURU = 'ऽ'
 
@@ -336,8 +334,25 @@ def is_padya(lines: list) -> bool:
     print("Unknown type of kaavya")
     sys.exit()
 
+def get_source(fname: str) -> dict:
+    """Extracts source intormatiion about the text (title, author , etc.)
 
-def create_anuchchheda_list(fname: str, source: dict) -> list:
+    Args:
+        fname (str): Filename of the text
+
+    Returns:
+        dict: Source information
+    """
+
+    sourcefile = 'source_' + fname.split('.', maxsplit=1)[0] + '.yml'
+
+    with open(sourcefile, 'r', encoding='utf-8') as file:
+        source_dict = yaml.safe_load(file)
+
+    return source_dict
+
+
+def create_anuchchheda_list(fname: str) -> list:
     """Parses the text file into anuchchhedas of gadya and padya
 
     Args:
@@ -352,14 +367,16 @@ def create_anuchchheda_list(fname: str, source: dict) -> list:
     with open(fname, 'r', encoding='utf-8') as text_file:
         data = text_file.readlines()
 
+    sources = get_source(fname)
+
     start = 0
     index = 1
     for i, line in enumerate(data):
         if line == '\n':
             stop = i
             lines = data[start:stop]
-            anuchchheda_list.append(Padya(index=index, lines=lines, source=source) if is_padya(
-                lines) else Gadya(index=index, lines=lines, source=source))
+            anuchchheda_list.append(Padya(index=index, lines=lines, source=sources) if is_padya(
+                lines) else Gadya(index=index, lines=lines, source=sources))
             start = stop + 1
             index += 1
 
@@ -370,12 +387,9 @@ if __name__ == '__main__':
 
     TEXT = 'champuuraamaayana.txt'
 
-    sourcefile = 'source_' + TEXT.split('.', maxsplit=1)[0] + '.yml'
+    anuchchhedas = create_anuchchheda_list(TEXT)
 
-    with open(sourcefile, 'r', encoding='utf-8') as file:
-        source_dict = yaml.safe_load(file)
-
-    anuchchhedas = create_anuchchheda_list(TEXT, source=source_dict)
-
-    for anuchchheda in anuchchhedas:
-        print(anuchchheda)
+    with open('logger.txt', 'w', encoding='utf-8') as logger:
+        sys.stdout = logger
+        for anuchchheda in anuchchhedas:
+            print(anuchchheda)
