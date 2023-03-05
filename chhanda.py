@@ -107,8 +107,8 @@ def create_reference(input_file: str, output_file: str):
         output_file (str)): output filename (.csv)
     """
 
-    with open(input_file, 'r', encoding='utf-8') as f:
-        ref = yaml.safe_load(f)
+    with open(input_file, 'r', encoding='utf-8') as ref_file:
+        ref = yaml.safe_load(ref_file)
 
     jaati_list = [x.split(' ')[0] for x in list(ref['समवृत्त'].keys())]
 
@@ -140,35 +140,52 @@ def create_reference(input_file: str, output_file: str):
         else:
             jaati.append(jaati_list[-1])
 
-    dd = {}
+    temp_dd = {}
 
-    dd['naama'] = naama
-    dd['jaati'] = jaati
-    dd['ganavibhaaga'] = ganavibhaaga
-    dd['prastaara'] = prastaara
-    dd['yati'] = yati
+    temp_dd['naama'] = naama
+    temp_dd['jaati'] = jaati
+    temp_dd['ganavibhaaga'] = ganavibhaaga
+    temp_dd['prastaara'] = prastaara
+    temp_dd['yati'] = yati
 
-    df = pd.DataFrame(dd)
+    temp_df = pd.DataFrame(temp_dd)
 
-    df.to_csv(output_file, index=False)
+    temp_df.to_csv(output_file, index=False)
 
 
 class Anuchchheda:
     """A class to represent an anuchchheda (paragraph) of the text
     """
 
-    def __init__(self, index, lines):
+    def __init__(self, index, lines, source):
         self.index = index
         self.raw = lines
+        self.source = source
 
-        assert isinstance(self.index, int)
+    def get_author(self):
+        """Returns author of a text
+
+        Returns:
+            str: Author of the text
+        """
+
+        return self.source['author']
+
+    def get_title(self):
+        """Returns title of the text
+
+        Returns:
+            str: Title of the text
+        """
+
+        return self.source['title']
 
 
 class Padya(Anuchchheda):
     """A class to represent a padya (verse) paragraph of the text
     """
 
-    def __init__(self, index, lines, reference_file='reference.csv'):
+    def __init__(self, index, lines, source, reference_file='reference.csv'):
 
         if len(lines) == 2:
             temp_x = vk.get_vinyaasa(lines[0])
@@ -181,7 +198,7 @@ class Padya(Anuchchheda):
             temp_d = vk.get_shabda(temp_d).strip() + '\n'
             lines = [temp_a, temp_b, temp_c, temp_d]
 
-        super().__init__(index, lines)
+        super().__init__(index, lines, source)
 
         self.paada = [x.rstrip('\n') for x in self.raw]
         self.prastaara = self.get_prastaara()
@@ -275,8 +292,8 @@ class Padya(Anuchchheda):
                 elif index + 1 < len(verse) and verse[index + 1] in ['ं', 'ः']:
                     prastaara.append(GURU)
 
-                elif (index + 2 < len(verse) and 
-                      verse[index + 1] in vyanjana and 
+                elif (index + 2 < len(verse) and
+                      verse[index + 1] in vyanjana and
                       verse[index + 2] in vyanjana):
                     prastaara.append(GURU)
 
@@ -320,7 +337,7 @@ def is_padya(lines: list) -> bool:
     sys.exit()
 
 
-def create_anuchchheda_list(fname: str) -> list:
+def create_anuchchheda_list(fname: str, source: dict) -> list:
     """Parses the text file into anuchchhedas of gadya and padya
 
     Args:
@@ -332,8 +349,8 @@ def create_anuchchheda_list(fname: str) -> list:
 
     anuchchheda_list = []
 
-    with open(fname, 'r', encoding='utf-8') as f:
-        data = f.readlines()
+    with open(fname, 'r', encoding='utf-8') as text_file:
+        data = text_file.readlines()
 
     start = 0
     index = 1
@@ -341,8 +358,8 @@ def create_anuchchheda_list(fname: str) -> list:
         if line == '\n':
             stop = i
             lines = data[start:stop]
-            anuchchheda_list.append(Padya(index=index, lines=lines) if is_padya(
-                lines) else Gadya(index=index, lines=lines))
+            anuchchheda_list.append(Padya(index=index, lines=lines, source=source) if is_padya(
+                lines) else Gadya(index=index, lines=lines, source=source))
             start = stop + 1
             index += 1
 
@@ -356,7 +373,13 @@ if __name__ == '__main__':
     # anuchchheda_list = create_anuchchheda_list('gita_moola.txt')
 
     TEXT = 'champuuraamaayana.txt'
-    anuchchhedas = create_anuchchheda_list(TEXT)
+
+    sourcefile = 'source_' + TEXT.split('.', maxsplit=1)[0] + '.yml'
+
+    with open(sourcefile, 'r', encoding='utf-8') as file:
+        source_dict = yaml.safe_load(file)
+
+    anuchchhedas = create_anuchchheda_list(TEXT, source=source_dict)
 
     for anuchchheda in anuchchhedas:
         print(anuchchheda)
