@@ -1,4 +1,4 @@
-"""Module to set stdout and other related tasks"""
+"""Handles everything related to kaavya"""
 import sys
 import Levenshtein
 import pandas as pd
