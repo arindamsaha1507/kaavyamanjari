@@ -1,2 +1,2 @@
-[Master]
+[General]
 init-hook='import sys; sys.path.append(".")'
