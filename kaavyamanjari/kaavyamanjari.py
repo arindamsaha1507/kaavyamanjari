@@ -5,11 +5,14 @@ import Levenshtein
 import pandas as pd
 import yaml
 
+from pathlib import Path
 import kaavyamanjari.varnakaarya as vk
 from kaavyamanjari.varna import svara, vyanjana
 
 LAGHU = '।'
 GURU = 'ऽ'
+
+script_path = Path(__file__).parent
 
 
 def prastaara_to_ganavibhaaga(prastaara: str) -> str:
@@ -99,7 +102,7 @@ def ganavibhaaga_to_prastaara(ganavibhaaga: str) -> str:
     return prastaara
 
 
-def create_reference(input_file: str, output_file: str, path='kaavyamanjari/references'):
+def create_reference(input_file: str, output_file: str, path='references'):
     """Creates reference for chhaanda types and their lakshana from yaml file and saves in csv file
 
     Args:
@@ -108,7 +111,7 @@ def create_reference(input_file: str, output_file: str, path='kaavyamanjari/refe
         path (str, optional): path to the files. Defaults to 'kaavyamanjari/references'.
     """
 
-    input_file = f'{path}/{input_file}'
+    input_file = f'{script_path}/{path}/{input_file}'
     with open(input_file, 'r', encoding='utf-8') as ref_file:
         ref = yaml.safe_load(ref_file)
 
@@ -152,7 +155,7 @@ def create_reference(input_file: str, output_file: str, path='kaavyamanjari/refe
 
     temp_df = pd.DataFrame(temp_dd)
 
-    output_file = f'{path}/{output_file}'
+    output_file = f'{script_path}/{path}/{output_file}'
     temp_df.to_csv(output_file, index=False)
 
 
@@ -191,7 +194,7 @@ class Padya(Anuchchheda):
     def __init__(self, index, lines, source, reference_file=None):
 
         if reference_file is None:
-            reference_file = {'file': 'reference.csv', 'path': 'kaavyamanjari/references'}
+            reference_file = {'file': 'reference.csv', 'path': 'references'}
 
         if len(lines) == 2:
             temp_x = vk.get_vinyaasa(lines[0])
@@ -211,7 +214,7 @@ class Padya(Anuchchheda):
 
         file = reference_file['file']
         path = reference_file['path']
-        reference_file = f'{path}/{file}'
+        reference_file = f'{script_path}/{path}/{file}'
         self.reference = pd.read_csv(reference_file)
 
         self.vritta, self.error = self.match_vritta()
@@ -357,7 +360,7 @@ def get_source(fname: str, path: str) -> dict:
         dict: Source information
     """
 
-    sourcefile = f'{path}/source_' + fname.split('.', maxsplit=1)[0] + '.yml'
+    sourcefile = f'{script_path}/{path}/source_' + fname.split('.', maxsplit=1)[0] + '.yml'
 
     with open(sourcefile, 'r', encoding='utf-8') as file:
         source_dict = yaml.safe_load(file)
@@ -365,7 +368,7 @@ def get_source(fname: str, path: str) -> dict:
     return source_dict
 
 
-def create_anuchchheda_list(fname: str, path='kaavyamanjari/texts') -> list:
+def create_anuchchheda_list(fname: str, path='texts') -> list:
     """Parses the text file into anuchchhedas of gadya and padya
 
     Args:
@@ -376,7 +379,7 @@ def create_anuchchheda_list(fname: str, path='kaavyamanjari/texts') -> list:
         list: List of gadya and padya anuchchhedas in the text
     """
 
-    text_fname = f'{path}/{fname}'
+    text_fname = f'{script_path}/{path}/{fname}'
 
     anuchchheda_list = []
 
