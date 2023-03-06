@@ -22,5 +22,6 @@ jobs:
         PYTHONPATH="${PWD}:${PYTHONPATH}"
     - name: Analysing the code with pylint
       run: |
-        echo $PYTHONPATH
+        echo ${PYTHONPATH}
+        echo{PWD}
         pylint --rcfile= $(git ls-files '*.py')
