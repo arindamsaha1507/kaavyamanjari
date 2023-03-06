@@ -22,4 +22,5 @@ jobs:
         export PYTHONPATH="${PYTHONPATH}:."
     - name: Analysing the code with pylint
       run: |
+        echo $PYTHONPATH
         pylint $(git ls-files '*.py')
