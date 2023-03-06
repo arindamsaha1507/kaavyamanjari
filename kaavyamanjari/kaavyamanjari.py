@@ -99,14 +99,16 @@ def ganavibhaaga_to_prastaara(ganavibhaaga: str) -> str:
     return prastaara
 
 
-def create_reference(input_file: str, output_file: str):
+def create_reference(input_file: str, output_file: str, path='kaavyamanjari/references'):
     """Creates reference for chhaanda types and their lakshana from yaml file and saves in csv file
 
     Args:
         input_file (str): input filename (.yml)
-        output_file (str)): output filename (.csv)
+        output_file (str): output filename (.csv)
+        path (str, optional): path to the files. Defaults to 'kaavyamanjari/references'.
     """
 
+    input_file = f'{path}/{input_file}'
     with open(input_file, 'r', encoding='utf-8') as ref_file:
         ref = yaml.safe_load(ref_file)
 
@@ -150,6 +152,7 @@ def create_reference(input_file: str, output_file: str):
 
     temp_df = pd.DataFrame(temp_dd)
 
+    output_file = f'{path}/{output_file}'
     temp_df.to_csv(output_file, index=False)
 
 
@@ -367,7 +370,7 @@ def create_anuchchheda_list(fname: str, path='kaavyamanjari/texts') -> list:
     Returns:
         list: List of gadya and padya anuchchhedas in the text
     """
-    
+
     text_fname = f'{path}/{fname}'
 
     anuchchheda_list = []
