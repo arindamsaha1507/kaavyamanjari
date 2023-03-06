@@ -351,7 +351,7 @@ def get_source(fname: str, path: str) -> dict:
 
     Args:
         fname (str): Filename of the text
-        path (str): Path to the text file relative to run.py
+        path (str): Path to the text file
 
     Returns:
         dict: Source information
@@ -370,7 +370,7 @@ def create_anuchchheda_list(fname: str, path='kaavyamanjari/texts') -> list:
 
     Args:
         fname (str): Input text filename
-        path (str, optional): Path to the input file relative to run.py. Defaults to 'kaavyamanjari/texts'.
+        path (str, optional): Path to the input file. Defaults to 'kaavyamanjari/texts'.
 
     Returns:
         list: List of gadya and padya anuchchhedas in the text
