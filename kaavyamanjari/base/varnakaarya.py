@@ -1,7 +1,7 @@
 """Handles all operations on varnas"""
 
 import sys
-import varna as vn
+import kaavyamanjari.base.varna as vn
 
 
 def maarjaka(sentence: str) -> str:

@@ -4,8 +4,9 @@ import sys
 import Levenshtein
 import pandas as pd
 import yaml
-import varnakaarya as vk
-from varna import svara, vyanjana
+
+import kaavyamanjari.base.varnakaarya as vk
+from kaavyamanjari.base.varna import svara, vyanjana
 
 LAGHU = '।'
 GURU = 'ऽ'
@@ -184,7 +185,7 @@ class Padya(Anuchchheda):
     """A class to represent a padya (verse) paragraph of the text
     """
 
-    def __init__(self, index, lines, source, reference_file='reference.csv'):
+    def __init__(self, index, lines, source, reference_file='reference.csv', path='kaavyamanjari/references'):
 
         if len(lines) == 2:
             temp_x = vk.get_vinyaasa(lines[0])
@@ -201,6 +202,8 @@ class Padya(Anuchchheda):
 
         self.paada = [x.rstrip('\n') for x in self.raw]
         self.prastaara = self.get_prastaara()
+
+        reference_file = f'{path}/{reference_file}'
         self.reference = pd.read_csv(reference_file)
 
         self.vritta, self.error = self.match_vritta()
@@ -335,17 +338,18 @@ def is_padya(lines: list) -> bool:
     print("Unknown type of kaavya")
     sys.exit()
 
-def get_source(fname: str) -> dict:
+def get_source(fname: str, path: str) -> dict:
     """Extracts source intormatiion about the text (title, author , etc.)
 
     Args:
         fname (str): Filename of the text
+        path (str): Path to the text file relative to run.py
 
     Returns:
         dict: Source information
     """
 
-    sourcefile = 'source_' + fname.split('.', maxsplit=1)[0] + '.yml'
+    sourcefile = f'{path}/source_' + fname.split('.', maxsplit=1)[0] + '.yml'
 
     with open(sourcefile, 'r', encoding='utf-8') as file:
         source_dict = yaml.safe_load(file)
@@ -353,22 +357,25 @@ def get_source(fname: str) -> dict:
     return source_dict
 
 
-def create_anuchchheda_list(fname: str) -> list:
+def create_anuchchheda_list(fname: str, path='kaavyamanjari/texts') -> list:
     """Parses the text file into anuchchhedas of gadya and padya
 
     Args:
         fname (str): Input text filename
+        path (str, optional): Path to the input file relative to run.py. Defaults to 'kaavyamanjari/texts'.
 
     Returns:
         list: List of gadya and padya anuchchhedas in the text
     """
+    
+    text_fname = f'{path}/{fname}'
 
     anuchchheda_list = []
 
-    with open(fname, 'r', encoding='utf-8') as text_file:
+    with open(text_fname, 'r', encoding='utf-8') as text_file:
         data = text_file.readlines()
 
-    sources = get_source(fname)
+    sources_fname = f'{path}/{get_source(fname, path)}'
 
     start = 0
     index = 1
@@ -376,8 +383,9 @@ def create_anuchchheda_list(fname: str) -> list:
         if line == '\n':
             stop = i
             lines = data[start:stop]
-            anuchchheda_list.append(Padya(index=index, lines=lines, source=sources) if is_padya(
-                lines) else Gadya(index=index, lines=lines, source=sources))
+            anuchchheda_list.append(
+                Padya(index=index, lines=lines, source=sources_fname) if is_padya(
+                lines) else Gadya(index=index, lines=lines, source=sources_fname))
             start = stop + 1
             index += 1
 
