@@ -230,14 +230,14 @@ class Padya(Anuchchheda):
 
         if len(set(self.error)) == 1 and str(self.error[0]) == '0':
 
-            string = f'पद्य {vk.get_sankhyaa(self.index)}\n'
-            string += f'{self.vritta}\n{self.prastaara}\n\n{raw}'
+            string = f'पद्य {vk.get_sankhyaa(self.index)}: '
+            string += f'{self.vritta}\n\n{raw}'
 
         else:
             error = [str(x) for x in self.error]
             error = '+'.join(error)
-            string = f'पद्य {vk.get_sankhyaa(self.index)}\n'
-            string += f'{self.vritta} त्रुटि: {error}\n{self.prastaara}\n\n{raw}'
+            string = f'पद्य {vk.get_sankhyaa(self.index)}: '
+            string += f'{self.vritta} त्रुटि: {error} {self.prastaara}\n\n{raw}'
 
         return string
 
