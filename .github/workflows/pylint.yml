@@ -20,9 +20,6 @@ jobs:
         pip install pylint
         pip install -r requirements.txt
         pip install .
-        PYTHONPATH="${PWD}:${PYTHONPATH}"
     - name: Analysing the code with pylint
       run: |
-        echo ${PYTHONPATH}
-        echo{PWD}
         pylint --rcfile= $(git ls-files '*.py')
