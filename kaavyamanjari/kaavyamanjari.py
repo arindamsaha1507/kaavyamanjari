@@ -188,7 +188,10 @@ class Padya(Anuchchheda):
     """A class to represent a padya (verse) paragraph of the text
     """
 
-    def __init__(self, index, lines, source, reference_file='reference.csv', path='kaavyamanjari/references'):
+    def __init__(self, index, lines, source, reference_file=None):
+
+        if reference_file is None:
+            reference_file = {'file': 'reference.csv', 'path': 'kaavyamanjari/references'}
 
         if len(lines) == 2:
             temp_x = vk.get_vinyaasa(lines[0])
@@ -206,7 +209,9 @@ class Padya(Anuchchheda):
         self.paada = [x.rstrip('\n') for x in self.raw]
         self.prastaara = self.get_prastaara()
 
-        reference_file = f'{path}/{reference_file}'
+        file = reference_file['file']
+        path = reference_file['path']
+        reference_file = f'{path}/{file}'
         self.reference = pd.read_csv(reference_file)
 
         self.vritta, self.error = self.match_vritta()
