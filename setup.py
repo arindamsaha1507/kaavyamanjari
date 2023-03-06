@@ -9,5 +9,5 @@ setuptools.setup(
     author='Arindam Saha',
     author_email='arindamsaha1507@gmail.com',
     packages=setuptools.find_packages(),
-    # install_requires=['pandas', 'yaml', 'Levenshtein']
+    install_requires=['pandas', 'pyyaml', 'Levenshtein']
 )
