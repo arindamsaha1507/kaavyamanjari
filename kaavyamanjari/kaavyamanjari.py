@@ -219,6 +219,8 @@ class Padya(Anuchchheda):
 
         self.vritta, self.error = self.match_vritta()
 
+        self.special_vritta = self.identify_special_vritta()
+
         if len(set(self.vritta)) == 1:
             self.vritta = self.vritta[0]
         else:
@@ -228,7 +230,12 @@ class Padya(Anuchchheda):
 
         raw = ''.join(self.raw)
 
-        if len(set(self.error)) == 1 and str(self.error[0]) == '0':
+        if self.special_vritta != '-':
+
+            string = f'पद्य {vk.get_sankhyaa(self.index)}\n'
+            string += f'{self.special_vritta}\n\n{raw}'
+
+        elif len(set(self.error)) == 1 and str(self.error[0]) == '0':
 
             string = f'पद्य {vk.get_sankhyaa(self.index)}\n'
             string += f'{self.vritta}\n{self.prastaara}\n\n{raw}'
@@ -279,6 +286,17 @@ class Padya(Anuchchheda):
             difference.append(min_value)
 
         return vritta, difference
+    
+    def identify_special_vritta(self):
+
+        lengths = list(len(x) for x in self.prastaara)
+
+        if len(set(lengths)) == 1 and lengths[0] == 8:
+            return 'अनुष्टुप्'
+        elif len(set(self.vritta)) == 2 and len(set(self.error)) == 1 and str(self.error[0]) == '0' and 'इन्द्रवज्रा' in set(self.vritta) and 'उपेन्द्रवज्रा' in set(self.vritta):
+            return 'उपजाति'
+        else:
+            return '-'
 
     def get_prastaara(self):
         """Gives the prastaara of the padya
