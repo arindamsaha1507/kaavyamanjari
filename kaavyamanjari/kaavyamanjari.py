@@ -1,6 +1,5 @@
 """Handles everything related to kaavya"""
 
-import sys
 import Levenshtein
 import pandas as pd
 import yaml
@@ -364,8 +363,7 @@ def is_padya(lines: list) -> bool:
         return True
     if len(lines) == 1:
         return False
-    print("Unknown type of kaavya")
-    sys.exit()
+    raise Exception(f"Unknown type of kaavya\n{lines}")
 
 def get_source(fname: str, path: str) -> dict:
     """Extracts source intormatiion about the text (title, author , etc.)
@@ -419,15 +417,3 @@ def create_anuchchheda_list(fname: str, path='texts') -> list:
             index += 1
 
     return anuchchheda_list
-
-
-if __name__ == '__main__':
-
-    TEXT = 'champuuraamaayana.txt'
-
-    anuchchhedas = create_anuchchheda_list(TEXT)
-
-    with open('logger.txt', 'w', encoding='utf-8') as logger:
-        sys.stdout = logger
-        for anuchchheda in anuchchhedas:
-            print(anuchchheda)
