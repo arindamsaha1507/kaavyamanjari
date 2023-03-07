@@ -6,7 +6,7 @@ import kaavyamanjari.kaavyamanjari as km
 
 km.create_reference('sandarbha.yml', 'reference.csv')
 
-TEXT = 'niitishataka.txt'
+TEXT = 'saundaryalaharii.txt'
 
 anuchchhedas = km.create_anuchchheda_list(TEXT)
 
