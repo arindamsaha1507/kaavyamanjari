@@ -1,10 +1,10 @@
 """Handles everything related to kaavya"""
 
+from pathlib import Path
 import Levenshtein
 import pandas as pd
 import yaml
 
-from pathlib import Path
 import kaavyamanjari.varnakaarya as vk
 from kaavyamanjari.varna import svara, vyanjana
 
@@ -247,7 +247,7 @@ class Padya(Anuchchheda):
 
         return string
 
-    def match_vritta(self):
+    def match_vritta(self) -> list(str):
         """Matches the padya against the known vrittas
 
         Returns:
@@ -285,17 +285,29 @@ class Padya(Anuchchheda):
             difference.append(min_value)
 
         return vritta, difference
-    
-    def identify_special_vritta(self):
+
+    def identify_special_vritta(self) -> str:
+        """Identifies meta classes of vrittas
+
+        Returns:
+            str: Type of special vritta or a dash for none
+        """
 
         lengths = list(len(x) for x in self.prastaara)
 
         if len(set(lengths)) == 1 and lengths[0] == 8:
+
             return 'अनुष्टुप्'
-        elif len(set(self.vritta)) == 2 and len(set(self.error)) == 1 and str(self.error[0]) == '0' and 'इन्द्रवज्रा' in set(self.vritta) and 'उपेन्द्रवज्रा' in set(self.vritta):
+
+        if (len(set(self.vritta)) == 2 and
+              len(set(self.error)) == 1 and
+              str(self.error[0]) == '0' and
+              'इन्द्रवज्रा' in set(self.vritta) and
+              'उपेन्द्रवज्रा' in set(self.vritta)):
+
             return 'उपजाति'
-        else:
-            return '-'
+
+        return '-'
 
     def get_prastaara(self):
         """Gives the prastaara of the padya
@@ -363,7 +375,8 @@ def is_padya(lines: list) -> bool:
         return True
     if len(lines) == 1:
         return False
-    raise Exception(f"Unknown type of kaavya\n{lines}")
+    raise AssertionError(f"Unknown type of kaavya\n{lines}")
+
 
 def get_source(fname: str, path: str) -> dict:
     """Extracts source intormatiion about the text (title, author , etc.)
@@ -376,7 +389,8 @@ def get_source(fname: str, path: str) -> dict:
         dict: Source information
     """
 
-    sourcefile = f'{script_path}/{path}/source_' + fname.split('.', maxsplit=1)[0] + '.yml'
+    sourcefile = f'{script_path}/{path}/source_' + \
+        fname.split('.', maxsplit=1)[0] + '.yml'
 
     with open(sourcefile, 'r', encoding='utf-8') as file:
         source_dict = yaml.safe_load(file)
@@ -412,7 +426,7 @@ def create_anuchchheda_list(fname: str, path='texts') -> list:
             lines = data[start:stop]
             anuchchheda_list.append(
                 Padya(index=index, lines=lines, source=sources_fname) if is_padya(
-                lines) else Gadya(index=index, lines=lines, source=sources_fname))
+                    lines) else Gadya(index=index, lines=lines, source=sources_fname))
             start = stop + 1
             index += 1
 
