@@ -1,15 +1,26 @@
 """Main module for analysis of a text"""
 
+import os
 import sys
 import kaavyamanjari.kaavyamanjari as km
 
+TEXT_PATH = 'kaavyamanjari/texts'
+
 km.create_reference('sandarbha.yml', 'reference.csv')
 
-TEXT = 'saundaryalaharii.txt'
-
-anuchchhedas = km.create_anuchchheda_list(TEXT)
-
 with open('logger.txt', 'w', encoding='utf-8') as logger:
-    sys.stdout = logger
-    for anuchchheda in anuchchhedas:
-        print(anuchchheda)
+
+    for text in os.listdir(TEXT_PATH):
+
+        if 'source_' not in text:
+
+            print(f'Reading {text}')
+
+            anuchchhedas = km.create_anuchchheda_list(text)
+
+            sys.stdout = logger
+            for anuchchheda in anuchchhedas:
+                print(anuchchheda)
+            sys.stdout = sys.__stdout__
+
+            print(f'Read {len(anuchchhedas)} paragraphs')
