@@ -247,7 +247,7 @@ class Padya(Anuchchheda):
 
         return string
 
-    def match_vritta(self) -> list(str):
+    def match_vritta(self) -> list:
         """Matches the padya against the known vrittas
 
         Returns:
