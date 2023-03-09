@@ -2,9 +2,9 @@
 
 import os
 import sys
-import kaavyamanjari.kaavyamanjari as km
+import src.kaavyamanjari as km
 
-TEXT_PATH = 'kaavyamanjari/texts'
+TEXT_PATH = 'src/texts'
 
 km.create_reference('sandarbha.yml', 'reference.csv')
 

@@ -5,8 +5,8 @@ import Levenshtein
 import pandas as pd
 import yaml
 
-import kaavyamanjari.varnakaarya as vk
-from kaavyamanjari.varna import svara, vyanjana
+import src.varnakaarya as vk
+from src.varna import svara, vyanjana
 
 LAGHU = '।'
 GURU = 'ऽ'
