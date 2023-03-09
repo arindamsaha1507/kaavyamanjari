@@ -1,7 +1,6 @@
 """Main module for analysis of a text"""
 
 import sys
-import os
 import kaavyamanjari.kaavyamanjari as km
 
 km.create_reference('sandarbha.yml', 'reference.csv')
