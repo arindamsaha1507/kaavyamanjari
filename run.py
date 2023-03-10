@@ -4,17 +4,14 @@ import os
 import sys
 import src.kaavyamanjari as km
 
-TEXT_PATH = 'src/texts'
+TEXT_PATH = "src/texts"
 
-km.create_reference('sandarbha.yml', 'reference.csv')
+km.create_reference("sandarbha.yml", "reference.csv")
 
-with open('logger.txt', 'w', encoding='utf-8') as logger:
-
+with open("logger.txt", "w", encoding="utf-8") as logger:
     for text in os.listdir(TEXT_PATH):
-
-        if 'source_' not in text:
-
-            print(f'Reading {text}')
+        if "source_" not in text:
+            print(f"Reading {text}")
 
             anuchchhedas = km.create_anuchchheda_list(text)
 
@@ -23,4 +20,4 @@ with open('logger.txt', 'w', encoding='utf-8') as logger:
                 print(anuchchheda)
             sys.stdout = sys.__stdout__
 
-            print(f'Read {len(anuchchhedas)} paragraphs')
+            print(f"Read {len(anuchchhedas)} paragraphs")
