@@ -1,4 +1,4 @@
-"""Basic tests related to texts"""
+"""Basic tests related to path"""
 
 import os
 from pathlib import Path
