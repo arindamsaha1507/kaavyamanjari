@@ -1,4 +1,4 @@
-name: Pylint
+name: Pytest
 
 on: [push]
 
@@ -18,7 +18,7 @@ jobs:
       run: |
         pip install -r requirements.txt
         python -m pip install --upgrade pip
-        pip install pylint
-    - name: Analysing the code with pylint
+        pip install pytest
+    - name: Analysing the code with pytest
       run: |
-        pylint $(git ls-files '*.py')
+        python -m pytest tests/
