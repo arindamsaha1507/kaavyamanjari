@@ -2,6 +2,8 @@
 
 import os
 from pathlib import Path
+
+import yaml
 from src import varna as vn
 
 texts_path = Path(__file__).parent.parent / "src" / "texts"
@@ -39,3 +41,13 @@ def test_characterset():
                         or symbol
                         in [" ", "्", "ऽ", "ं", "ँ", "।", "॥", "ः", "-", "\u200d"]
                     ), f"Unknown symbol in {text} in line {line}"
+
+
+def test_source_file_formatting():
+    """Checks the formatting of the source file"""
+
+    for source in sources:
+        with open(texts_path / source, "r", encoding="utf-8") as file:
+            source_dict = yaml.safe_load(file)
+            assert "title" in source_dict.keys()
+            assert "author" in source_dict.keys()
